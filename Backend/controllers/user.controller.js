@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const User = require('../models/user')
+const User = require('../models/userMaster')
+const UserPersonal = require('../models/userPersonal');
 const bcrypt = require('bcryptjs');
 //const User = mongoose.model('UserMaster');
 
-module.exports.register = async (req, res, next) => {
+module.exports.registerUserMaster = async (req, res, next) => {
     var fName = req.body.firstName;
     fName = fName.charAt(0);
     var lName = req.body.lastName;
@@ -22,17 +23,29 @@ module.exports.register = async (req, res, next) => {
                     'email': req.body.email,
                     'phoneNumber': req.body.phoneNumber,
                     'password': hashPwd,
+                    'fatherName': req.body.fatherName,
+                    'playerLevel': req.body.playerLevel,
                     'createdBy': req.body.firstName + " " + req.body.lastName
                 }))
                 .save()
                 .then(users => res.status(201).send(users))
                 .catch(error => res.status(500).send(error) )
-            
+           
         } 
+         /* (new UserPersonal(
+                {
+                    'userId': User.userId,
+                    'firstName': req.body.firstName,
+                    'lastName': req.body.lastName,
+                    'email': req.body.email,
+                    'phoneNumber': req.body.phoneNumber
+                }))
+                .save()
+                .then(users => console.log(users)) */
     });
 }
 
-module.exports.updateUser = async (req, res, next) => {
+module.exports.updateUserMaster = async (req, res, next) => {
 /*     if(req.body.status == 'INACTIVE'){
         var deletedby = req.body.firstName + " " + req.body.lastName;
     } */

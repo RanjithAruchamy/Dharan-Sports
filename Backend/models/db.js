@@ -1,4 +1,4 @@
-require('./user');
+require('./userMaster');
 const mongoose = require('mongoose');
 
 mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify:false}, (err) => {
