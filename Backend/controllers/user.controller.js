@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
 const User = require('../models/userMaster')
 const UserPersonal = require('../models/userPersonal');
+const UserSports = require('../models/userSports');
+const SportsMaster = require('../models/sportsMaster');
 const bcrypt = require('bcryptjs');
+const { json } = require('body-parser');
 //const User = mongoose.model('UserMaster');
 
 module.exports.registerUserMaster = async (req, res, next) => {
     var fName = req.body.firstName;
+    fName = fName.trim();
     fName = fName.charAt(0);
+    fName = fName.toUpperCase();
     var lName = req.body.lastName;
+    lName= lName.trim();
+    lName = lName.toUpperCase();
     lName = lName.charAt(0);
     const salt = await bcrypt.genSalt()
     const hashPwd = await bcrypt.hash(req.body.password, salt);
@@ -16,32 +23,48 @@ module.exports.registerUserMaster = async (req, res, next) => {
         if (err){ 
             res.status(500).send(err);
         }else{ 
-            (new User(
-                {'userId': "OXF-D-" + fName + lName +"-"+ count,
+            // Create user in User Master
+            const user = new User(
+                {
+                    'userId': "OXF-D-U-" + fName + lName +"-"+ count,
                     'firstName': req.body.firstName,
                     'lastName': req.body.lastName,
                     'email': req.body.email,
                     'phoneNumber': req.body.phoneNumber,
                     'password': hashPwd,
-                    'fatherName': req.body.fatherName,
-                    'playerLevel': req.body.playerLevel,
-                    'createdBy': req.body.firstName + " " + req.body.lastName
-                }))
-                .save()
-                .then(users => res.status(201).send(users))
-                .catch(error => res.status(500).send(error) )
-           
+                    'createdBy': req.body.firstName + " " + req.body.lastName,
+                    'personal':{},
+                    'sports':{'sportId': req.body.sportId}
+                    
+                });
+                user.save( function() {
+                   // Create user in User Personal
+                    const userPersonal = new UserPersonal(
+                        {
+                            '_id': user._id,
+                            'userId': user.userId,
+                            'firstName': req.body.firstName,
+                            'lastName': req.body.lastName,
+                            'email': req.body.email,
+                            'phoneNumber': req.body.phoneNumber
+                        })
+                        userPersonal.save((err, doc) => {
+                        if(!err) res.status(201).send(doc)
+                        else res.status(500).send(err)
+                        })
+                        // Create user in User Sports
+                        const userSports = new UserSports(
+                            {
+                                '_id': user._id,
+                                'userId': user.userId,
+                                'sportId': req.body.sportId
+                            })
+                            userSports.save()
+                })
+                //Update userid in Sports Master
+                SportsMaster.findOneAndUpdate({'sportId':req.body.sportId}, {$push:{ players:{userId:user.userId, _id:user._id}}}, null, function(){})           
         } 
-         /* (new UserPersonal(
-                {
-                    'userId': User.userId,
-                    'firstName': req.body.firstName,
-                    'lastName': req.body.lastName,
-                    'email': req.body.email,
-                    'phoneNumber': req.body.phoneNumber
-                }))
-                .save()
-                .then(users => console.log(users)) */
+         
     });
 }
 
@@ -64,3 +87,4 @@ module.exports.updateUserMaster = async (req, res, next) => {
     User.findOne({userId:req.params.userId})
     .then(users => res.send(users)) */
 }
+

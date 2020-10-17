@@ -3,10 +3,15 @@ const mongoose = require("mongoose");
 var sportsSchema = new mongoose.Schema(
   {
     sportId: { type: String, unique: true },
-    userId: { type: String },
     status: { type: String, default: "ACTIVE" },
-    sportName:{type:string },
-    sportType:{type:string},
+    sportName:{type: String },
+    sportType:{type:String},
+    players: [{
+      userId:{type: String}
+    }],
+    forms:[{
+      formId:{type:String}
+    }],
     deletedAt: { type: Date },
     createdBy:{type:String},
     updatedBy:{type:String},
