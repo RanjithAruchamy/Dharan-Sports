@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const sportsMaster = require('../models/sportsMaster');
 const SportsMaster = require('../models/sportsMaster');
 
+//Create a Sport
 module.exports.registerSportsMaster = (req, res, next) => {
     var sname = req.body.sportName;
     sname = sname.trim();
@@ -23,4 +24,25 @@ module.exports.registerSportsMaster = (req, res, next) => {
         })
     })
     
+}
+
+// Get All Sports
+module.exports.getAllSport = (req, res, next) => {
+    sportsMaster.find()
+    .then(sports => res.status(200).send(sports))
+    .catch(err => res.status(404).send(err))
+}
+
+//Get a Sport
+module.exports.getSport = (req, res, next) => {
+    sportsMaster.findOne({sportId:req.params.sportId})
+    .then(sports => res.status(200).send(sports))
+    .catch(err => res.status(404).send(err))
+}
+
+//Update a User
+module.exports.updateSport = (req, res, next) => {
+    SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:req.body}, {new:true})
+    .then(sports => res.status(200).send(sports))
+    .catch(err => res.status(404).send(err))
 }

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const FormsMaster = require('../models/formMaster');
 const SportsMaster = require('../models/sportsMaster');
 
+//Create a Form
 module.exports.registerForm = (req, res, next) => {
     var Fname = req.body.formName;
     Fname = Fname.trim();
@@ -25,4 +26,25 @@ module.exports.registerForm = (req, res, next) => {
         SportsMaster.findOneAndUpdate({'sportId':req.body.sportId}, {$push:{ forms:{formId:forms.formId, _id:forms._id}}}, null, function(){})
     })
 
+}
+
+//Get All Forms
+module.exports.getAllForm = (req, res, next) => {
+    FormsMaster.find()
+    .then(forms => res.status(200).send(forms))
+    .catch(err => res.status(404).send(err))
+}
+
+//Get a Form
+module.exports.getForm = (req, res, next) => {
+    FormsMaster.findOne({formId:req.params.formId})
+    .then(forms => res.status(200).send(forms))
+    .catch(err => res.status(404).send(err))
+}
+
+//Update a Form
+module.exports.updateForm = (req, res, next) => {
+    FormsMaster.findOneAndUpdate({formId:req.params.formId}, {$set:req.body}, {new:true})
+    .then(forms => res.status(200).send(forms))
+    .catch(err => res.status(404).send(err))
 }

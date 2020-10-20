@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const { json } = require('body-parser');
 //const User = mongoose.model('UserMaster');
 
+// Create a User
 module.exports.registerUserMaster = async (req, res, next) => {
     var fName = req.body.firstName;
     fName = fName.trim();
@@ -68,23 +69,26 @@ module.exports.registerUserMaster = async (req, res, next) => {
     });
 }
 
-module.exports.updateUserMaster = async (req, res, next) => {
-/*     if(req.body.status == 'INACTIVE'){
-        var deletedby = req.body.firstName + " " + req.body.lastName;
-    } */
+//Get all users
+module.exports.getAllUser = (req, res, next) => {
+    User.find()
+    .then(users => res.status(200).send(users))
+    .catch(err => res.status(404).send(err))
+}
 
-    /* User.findOneAndUpdate({userId:req.params.userId}, {$set:req.body})
-    .then(function(){
-        User.findById({'userId': req.params.userId}).then(function(users){
-            res.status(200).send(users)}) 
-    })
-    .catch(error => res.status(500).send(error)) */
-    
- /*    User.findOne({userId:req.params.userId})
-    .then(users => res.send(users))
-    User.updateOne({userId:req.params.userId},{$set:req.body})
-    .then(users => res.send(users))
+// Get a user
+module.exports.getUser = (req, res, next) => {
     User.findOne({userId:req.params.userId})
-    .then(users => res.send(users)) */
+    .then(users => res.status(200).send(users))
+    .catch(err => res.status(404).send(err))
+}
+
+//Update a User
+module.exports.updateUserMaster = (req, res, next) => {
+    User.findOneAndUpdate({userId:req.params.userId}, {$set:req.body}, {new:true})
+    .then(users => res.status(200).send(users))
+    .catch(err => res.status(404).send(err))
+    UserPersonal.findOneAndUpdate({userId:req.params.userId}, {$set:req.body.personal}, {new:true})
+    UserSports.findOneAndUpdate({userId:req.params.userId},{$set:req.body.sports}, {new:true})
 }
 
