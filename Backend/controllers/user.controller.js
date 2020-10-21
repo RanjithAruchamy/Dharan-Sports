@@ -5,6 +5,7 @@ const UserSports = require('../models/userSports');
 const SportsMaster = require('../models/sportsMaster');
 const bcrypt = require('bcryptjs');
 const { json } = require('body-parser');
+const moment = require('moment');
 //const User = mongoose.model('UserMaster');
 
 // Create a User
@@ -84,11 +85,24 @@ module.exports.getUser = (req, res, next) => {
 }
 
 //Update a User
-module.exports.updateUserMaster = (req, res, next) => {
+module.exports.updateUserMaster = async (req, res, next) => {
     User.findOneAndUpdate({userId:req.params.userId}, {$set:req.body}, {new:true})
     .then(users => res.status(200).send(users))
     .catch(err => res.status(404).send(err))
-    UserPersonal.findOneAndUpdate({userId:req.params.userId}, {$set:req.body.personal}, {new:true})
-    UserSports.findOneAndUpdate({userId:req.params.userId},{$set:req.body.sports}, {new:true})
+    await UserPersonal.findOneAndUpdate({userId:req.params.userId}, {$set:req.body.personal}, {new:true})
+    //.then(users => console.log(users))
+    await UserSports.findOneAndUpdate({userId:req.params.userId},{$set:req.body.sports}, {new:true})
+    //.then(users => console.log(users))
 }
 
+//Delete a User
+module.exports.deleteUserMaster = async (req, res, next) => {
+    console.log( moment().format())
+    User.findOneAndUpdate({userId:req.params.userId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
+    .then(users => res.status(200).send(users))
+    .catch(err => res.status(404).send(err))
+    await UserPersonal.findOneAndUpdate({userId:req.params.userId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
+    //.then(users => console.log(users))
+    await UserSports.findOneAndUpdate({userId:req.params.userId},{$set:{status:"INACTIVE", deletedAt:moment().format()}}, {new:true})
+    //.then(users => console.log(users))
+}

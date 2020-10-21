@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const FormsMaster = require('../models/formMaster');
 const SportsMaster = require('../models/sportsMaster');
+const moment = require('moment');
 
 //Create a Form
 module.exports.registerForm = (req, res, next) => {
@@ -45,6 +46,13 @@ module.exports.getForm = (req, res, next) => {
 //Update a Form
 module.exports.updateForm = (req, res, next) => {
     FormsMaster.findOneAndUpdate({formId:req.params.formId}, {$set:req.body}, {new:true})
+    .then(forms => res.status(200).send(forms))
+    .catch(err => res.status(404).send(err))
+}
+
+//Delete a Form
+module.exports.deleteForm = (req, res, next) => {
+    FormsMaster.findOneAndUpdate({formId:req.params.formId}, {$set:{status:"INACTIVE"}, deletedAt: moment().format()}, {new:true})
     .then(forms => res.status(200).send(forms))
     .catch(err => res.status(404).send(err))
 }

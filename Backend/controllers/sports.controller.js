@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const sportsMaster = require('../models/sportsMaster');
 const SportsMaster = require('../models/sportsMaster');
+const moment = require('moment');
 
 //Create a Sport
 module.exports.registerSportsMaster = (req, res, next) => {
@@ -43,6 +44,13 @@ module.exports.getSport = (req, res, next) => {
 //Update a User
 module.exports.updateSport = (req, res, next) => {
     SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:req.body}, {new:true})
+    .then(sports => res.status(200).send(sports))
+    .catch(err => res.status(404).send(err))
+}
+
+//Delete a User
+module.exports.deleteSport = (req, res, next) => {
+    SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
     .then(sports => res.status(200).send(sports))
     .catch(err => res.status(404).send(err))
 }

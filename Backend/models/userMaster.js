@@ -10,7 +10,7 @@ var userSchema = new mongoose.Schema(
     phoneNumber: { type: Number, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    deletedAt: { type: Date },
+    deletedAt: { type: Date, default:null},
     createdBy:{type:String},
     updatedBy:{type:String},
     deletedBy:{type:String},
@@ -42,7 +42,7 @@ var userSchema = new mongoose.Schema(
     },
 },
   {
-    timestamps: { createdAt: "createdAt", updatedAt: "updated_at" },
+    timestamps: { createdAt: "createdAt", updatedAt: "updated_at"},
   }
 );
 

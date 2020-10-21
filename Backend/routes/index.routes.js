@@ -17,8 +17,8 @@ router.get('/forms/:formId', ctrlForm.getForm);
 router.put('/updateUser/:userId', ctrlUser.updateUserMaster);
 router.put('/sports/:sportId', ctrlSport.updateSport);
 router.put('/forms/:formId', ctrlForm.updateForm);
-// router.delete('/updateUser/:userId', ctrlUser.deleteUserMaster);
-// router.delete('/sports/:sportId', ctrlSport.deleteSport);
-// router.delete('/forms/:formId', ctrlForm.deleteForm);
+router.delete('/deleteUser/:userId', ctrlUser.deleteUserMaster);
+router.delete('/sports/:sportId', ctrlSport.deleteSport);
+router.delete('/forms/:formId', ctrlForm.deleteForm);
 
 module.exports = router;
