@@ -4,10 +4,13 @@ const router = express.Router();
 const ctrlUser = require('../controllers/user.controller');
 const ctrlSport = require('../controllers/sports.controller');
 const ctrlForm = require('../controllers/forms.controller');
+const jwtHelper = require('../Config/JWThelper');
 
+router.post('/login', ctrlUser.authenticate);
 router.post('/register/user', ctrlUser.registerUserMaster);
 router.post('/register/sport', ctrlSport.registerSportsMaster);
 router.post('/register/form', ctrlForm.registerForm);
+router.get('/userProfile',jwtHelper.verifyJwtToken , ctrlUser.userProfile);
 router.get('/users', ctrlUser.getAllUser);
 router.get('/users/:userId', ctrlUser.getUser);
 router.get('/sports', ctrlSport.getAllSport);

@@ -1,10 +1,14 @@
 {
     "development":{
         "PORT": 3000,
-        "MONGODB_URI": "mongodb://localhost/Sports"
+        "MONGODB_URI": "mongodb://localhost/Sports",
+        "JWT_SECRET": "SecretSports",
+        "JWT_EXP": "60m"
     },
     "production":{
         "PORT": 3000,
-        "MONGODB_URI": "mongodb://localhost://27017/Sports"
+        "MONGODB_URI": "mongodb://localhost://27017/Sports",
+        "JWT_SECRET": "SecretSports",
+        "JWT_EXP": "60m"
     }
 }

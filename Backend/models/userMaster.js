@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 var userSchema = new mongoose.Schema(
   {
@@ -8,7 +10,7 @@ var userSchema = new mongoose.Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phoneNumber: { type: Number, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true},
     password: { type: String, required: true },
     deletedAt: { type: Date, default:null},
     createdBy:{type:String},
@@ -45,6 +47,22 @@ var userSchema = new mongoose.Schema(
     timestamps: { createdAt: "createdAt", updatedAt: "updated_at"},
   }
 );
+
+userSchema.path('email').validate((val) => {
+  emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return emailRegex.test(val);
+}, 'Invalid e-mail.');
+
+userSchema.methods.verifyPassword = function(password) {
+  return bcrypt.compareSync(password, this.password);
+}
+
+userSchema.methods.generateJwt = function() {
+  return jwt.sign({userId: this.userId}, 
+    process.env.JWT_SECRET,{
+      expiresIn: process.env.JWT_EXP
+    });
+}
 
 const UserMaster = mongoose.model("UserMaster", userSchema);
 module.exports = UserMaster;

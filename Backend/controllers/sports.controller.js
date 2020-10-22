@@ -41,14 +41,14 @@ module.exports.getSport = (req, res, next) => {
     .catch(err => res.status(404).send(err))
 }
 
-//Update a User
+//Update a Sport
 module.exports.updateSport = (req, res, next) => {
     SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:req.body}, {new:true})
     .then(sports => res.status(200).send(sports))
     .catch(err => res.status(404).send(err))
 }
 
-//Delete a User
+//Delete a Sport
 module.exports.deleteSport = (req, res, next) => {
     SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
     .then(sports => res.status(200).send(sports))

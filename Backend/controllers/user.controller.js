@@ -6,6 +6,8 @@ const SportsMaster = require('../models/sportsMaster');
 const bcrypt = require('bcryptjs');
 const { json } = require('body-parser');
 const moment = require('moment');
+const passport = require('passport');
+const lodash = require('lodash');
 //const User = mongoose.model('UserMaster');
 
 // Create a User
@@ -18,6 +20,7 @@ module.exports.registerUserMaster = async (req, res, next) => {
     lName= lName.trim();
     lName = lName.toUpperCase();
     lName = lName.charAt(0);
+    var pwd = req.body.password;
     const salt = await bcrypt.genSalt()
     const hashPwd = await bcrypt.hash(req.body.password, salt);
 
@@ -39,7 +42,16 @@ module.exports.registerUserMaster = async (req, res, next) => {
                     'sports':{'sportId': req.body.sportId}
                     
                 });
-                user.save( function() {
+                //Password Validation
+                if(pwd.length < 4){
+                    res.json("Password must be 4 character long")
+                }else{
+                user.save( function(err, doc) {
+                    if(err){
+                        res.send(err)
+                    }
+                    else
+                    res.send(doc)
                    // Create user in User Personal
                     const userPersonal = new UserPersonal(
                         {
@@ -47,13 +59,10 @@ module.exports.registerUserMaster = async (req, res, next) => {
                             'userId': user.userId,
                             'firstName': req.body.firstName,
                             'lastName': req.body.lastName,
-                            'email': req.body.email,
+                            'email': user.email,
                             'phoneNumber': req.body.phoneNumber
                         })
-                        userPersonal.save((err, doc) => {
-                        if(!err) res.status(201).send(doc)
-                        else res.status(500).send(err)
-                        })
+                        userPersonal.save()
                         // Create user in User Sports
                         const userSports = new UserSports(
                             {
@@ -62,7 +71,7 @@ module.exports.registerUserMaster = async (req, res, next) => {
                                 'sportId': req.body.sportId
                             })
                             userSports.save()
-                })
+                })}
                 //Update userid in Sports Master
                 SportsMaster.findOneAndUpdate({'sportId':req.body.sportId}, {$push:{ players:{userId:user.userId, _id:user._id}}}, null, function(){})           
         } 
@@ -105,4 +114,27 @@ module.exports.deleteUserMaster = async (req, res, next) => {
     //.then(users => console.log(users))
     await UserSports.findOneAndUpdate({userId:req.params.userId},{$set:{status:"INACTIVE", deletedAt:moment().format()}}, {new:true})
     //.then(users => console.log(users))
+}
+
+//Authentication
+module.exports.authenticate = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if(err)
+        return res.status(400).json(err);
+        else if(user)
+        return res.status(200).json({"token": user.generateJwt() })
+        else
+        return res.status(404).json(info)
+    })(req, res)
+}
+
+//Logged in user
+module.exports.userProfile = (req, res, next) => {
+    User.findOne({userId: req.userId},
+        (err, user) => {
+            if(!user)
+            return res.status(404).json({status:false, message: "User is not found"});
+            else
+            return res.status(200).json({status:true, user: lodash.pick(user, ['userId', 'firstName', 'lastName', 'email'])});
+        });
 }
