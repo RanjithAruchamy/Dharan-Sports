@@ -32,14 +32,41 @@ module.exports.registerUserMaster = async (req, res, next) => {
             const user = new User(
                 {
                     'userId': "OXF-D-U-" + fName + lName +"-"+ count,
+                    'role': req.body.role,
                     'firstName': req.body.firstName,
                     'lastName': req.body.lastName,
                     'email': req.body.email,
                     'phoneNumber': req.body.phoneNumber,
                     'password': hashPwd,
                     'createdBy': req.body.firstName + " " + req.body.lastName,
-                    'personal':{},
-                    'sports':{'sportId': req.body.sportId}
+                    'deletedAt': null,
+                    'updatedBy':null,
+                    'deletedBy':null,
+                    'personal':{
+                        'fatherName': null,
+                        'motherName': null,
+                        'permanentAddress': null,
+                        'temporaryAddress': null,
+                        'bloodGroup': null,
+                        'age': null,
+                        'dob': null,
+                        'height': null,
+                        'profession': null,
+                        'organization': null
+                    },
+                    'sports':{
+                        'sportId': req.body.sportId,
+                        'playerLevel': null,
+                        'playerSkill': null,
+                        'previousTeam': null,
+                        'TNCA': null,
+                        'KDCA': null,
+                        'hobbies': null,
+                        'goal': null,
+                        'roleModel':null,
+                        'strength':null,
+                        'weakness':null
+                }
                     
                 });
                 //Password Validation
@@ -57,10 +84,25 @@ module.exports.registerUserMaster = async (req, res, next) => {
                         {
                             '_id': user._id,
                             'userId': user.userId,
+                            'role': req.body.role,
                             'firstName': req.body.firstName,
                             'lastName': req.body.lastName,
                             'email': user.email,
-                            'phoneNumber': req.body.phoneNumber
+                            'phoneNumber': req.body.phoneNumber,
+                            'fatherName':null,
+                            'motherName':null,
+                            'permanentAddress':null,
+                            'temporaryAddress':null,
+                            'bloodGroup':null,
+                            'age':null,
+                            'dob':null,
+                            'height':null,
+                            'profession':null,
+                            'organization':null,
+                            'deletedAt': null,
+                            'createdBy':user.createdBy,
+                            'updatedBy':null,
+                            'deletedBy':null
                         })
                         userPersonal.save()
                         // Create user in User Sports
@@ -68,7 +110,22 @@ module.exports.registerUserMaster = async (req, res, next) => {
                             {
                                 '_id': user._id,
                                 'userId': user.userId,
-                                'sportId': req.body.sportId
+                                'role': req.body.role,
+                                'sportId': req.body.sportId,
+                                'playerLevel': null,
+                                'playerSkill': null,
+                                'previousTeam': null,
+                                'TNCA': null,
+                                'KDCA': null,
+                                'hobbies': null,
+                                'goal': null,
+                                'roleModel':null,
+                                'strength':null,
+                                'weakness':null,
+                                'deletedAt': null,
+                                'createdBy':user.createdBy,
+                                'updatedBy':null,
+                                'deletedBy':null
                             })
                             userSports.save()
                 })}
@@ -81,39 +138,78 @@ module.exports.registerUserMaster = async (req, res, next) => {
 
 //Get all users
 module.exports.getAllUser = (req, res, next) => {
-    User.find()
-    .then(users => res.status(200).send(users))
-    .catch(err => res.status(404).send(err))
+    var role;
+    User.findOne({userId: req.userId},
+        (err, user) => {
+            if(!user)
+            return res.status(404).json({status:false, message: "User is not found"});
+            else
+            role = lodash.pick(user, 'role')
+            
+            if(role.role == 'ADMIN'){
+                User.find()
+                .then(users => res.status(200).send(users))
+                .catch(err => res.status(404).send(err))
+                }
+                else{
+                    res.json('Only Admin can access!')
+                }
+        });
+        
 }
 
 // Get a user
 module.exports.getUser = (req, res, next) => {
-    User.findOne({userId:req.params.userId})
+    User.findOne({userId:req.userId})
     .then(users => res.status(200).send(users))
     .catch(err => res.status(404).send(err))
 }
 
 //Update a User
 module.exports.updateUserMaster = async (req, res, next) => {
-    User.findOneAndUpdate({userId:req.params.userId}, {$set:req.body}, {new:true})
+    // To fetch logged in user details
+    User.findOne({userId: req.userId},
+      async  (err, user) => {
+            if(!user)
+            return res.status(404).json({status:false, message: "User is not found"});
+            else
+            var fName, lName, name;
+            fName = lodash.pick(user, 'firstName')
+            lName = lodash.pick(user, 'lastName')
+            name = fName.firstName + " " + lName.lastName;
+    //Updating to User Master    
+    await User.findOneAndUpdate({userId:req.userId}, {$set:req.body}, {new:true})
+    await User.findOneAndUpdate({userId:req.userId}, {$set:{updatedBy: name}}, {new:true})
     .then(users => res.status(200).send(users))
     .catch(err => res.status(404).send(err))
-    await UserPersonal.findOneAndUpdate({userId:req.params.userId}, {$set:req.body.personal}, {new:true})
-    //.then(users => console.log(users))
-    await UserSports.findOneAndUpdate({userId:req.params.userId},{$set:req.body.sports}, {new:true})
-    //.then(users => console.log(users))
+    //Updating to User Personal
+    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:req.body.personal}, {new:true})
+    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{updatedBy: name}}, {new:true})
+    //Updating to User Sports
+    await UserSports.findOneAndUpdate({userId:req.userId},{$set:req.body.sports}, {new:true})
+    await UserSports.findOneAndUpdate({userId:req.userId}, {$set:{updatedBy: name}}, {new:true})
+});
 }
 
 //Delete a User
 module.exports.deleteUserMaster = async (req, res, next) => {
-    console.log( moment().format())
-    User.findOneAndUpdate({userId:req.params.userId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
+    User.findOne({userId: req.userId},
+        async  (err, user) => {
+              if(!user)
+              return res.status(404).json({status:false, message: "User is not found"});
+              else
+              var fName, lName, name;
+              fName = lodash.pick(user, 'firstName')
+              lName = lodash.pick(user, 'lastName')
+              name = fName.firstName + " " + lName.lastName;
+    User.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
     .then(users => res.status(200).send(users))
     .catch(err => res.status(404).send(err))
-    await UserPersonal.findOneAndUpdate({userId:req.params.userId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
+    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
     //.then(users => console.log(users))
-    await UserSports.findOneAndUpdate({userId:req.params.userId},{$set:{status:"INACTIVE", deletedAt:moment().format()}}, {new:true})
+    await UserSports.findOneAndUpdate({userId:req.userId},{$set:{status:"INACTIVE", deletedBy: name, deletedAt:moment().format()}}, {new:true})
     //.then(users => console.log(users))
+        });
 }
 
 //Authentication

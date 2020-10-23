@@ -12,10 +12,10 @@ var sportsSchema = new mongoose.Schema(
     forms:[{
       formId:{type:String}
     }],
-    deletedAt: { type: Date },
+    deletedAt: { type: Date, default:null },
     createdBy:{type:String},
-    updatedBy:{type:String},
-    deletedBy:{type:String}
+    updatedBy:{type:String, default:null},
+    deletedBy:{type:String, default: null}
   },
   {
     timestamps: { createdAt: "createdAt", updatedAt: "updated_at" },
