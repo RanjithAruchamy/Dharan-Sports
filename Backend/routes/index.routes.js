@@ -12,7 +12,7 @@ router.post('/register/sport',jwtHelper.verifyJwtToken, ctrlSport.registerSports
 router.post('/register/form',jwtHelper.verifyJwtToken, ctrlForm.registerForm);
 router.get('/userProfile',jwtHelper.verifyJwtToken , ctrlUser.userProfile);
 router.get('/users', jwtHelper.verifyJwtToken , ctrlUser.getAllUser);
-router.get('/me',jwtHelper.verifyJwtToken, ctrlUser.getUser);
+router.get('/user',jwtHelper.verifyJwtToken, ctrlUser.getUser);
 router.get('/sports',jwtHelper.verifyJwtToken, ctrlSport.getAllSport);
 router.get('/sports/:sportId',jwtHelper.verifyJwtToken, ctrlSport.getSport);
 router.get('/forms',jwtHelper.verifyJwtToken, ctrlForm.getAllForm);

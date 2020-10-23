@@ -160,56 +160,116 @@ module.exports.getAllUser = (req, res, next) => {
 
 // Get a user
 module.exports.getUser = (req, res, next) => {
-    User.findOne({userId:req.userId})
-    .then(users => res.status(200).send(users))
-    .catch(err => res.status(404).send(err))
+    var role;
+    User.findOne({userId: req.userId},
+        (err, user) => {
+            if(!user)
+            return res.status(404).json({status:false, message: "User is not found"});
+            else
+            role = lodash.pick(user, 'role')
+            if(role.role == 'ADMIN'){
+                if(req.query.userId == undefined){
+                    User.findOne({userId:req.userId})
+                    .then(users => res.status(200).send(users))
+                    .catch(err => res.status(404).send(err))
+                }
+                else{
+                    User.findOne({userId:req.query.userId})
+                    .then(users => res.status(200).send(users))
+                    .catch(err => res.status(404).send(err))
+                }
+            }
+            else{
+                User.findOne({userId:req.userId})
+                .then(users => res.status(200).send(users))
+                .catch(err => res.status(404).send(err))
+            }
+        });
 }
 
 //Update a User
 module.exports.updateUserMaster = async (req, res, next) => {
     // To fetch logged in user details
+    var fName, lName, name, role;
     User.findOne({userId: req.userId},
       async  (err, user) => {
             if(!user)
             return res.status(404).json({status:false, message: "User is not found"});
-            else
-            var fName, lName, name;
+            else{
+            role = lodash.pick(user, 'role')
             fName = lodash.pick(user, 'firstName')
             lName = lodash.pick(user, 'lastName')
             name = fName.firstName + " " + lName.lastName;
-    //Updating to User Master    
-    await User.findOneAndUpdate({userId:req.userId}, {$set:req.body}, {new:true})
-    await User.findOneAndUpdate({userId:req.userId}, {$set:{updatedBy: name}}, {new:true})
+            }
+            if(role.role == 'ADMIN'){
+                if(req.query.userId == undefined)
+                {
+                    var user = {userId: req.userId}
+                    update(user)
+                }
+                else{
+                    var user = {userId: req.query.userId}
+                    update(user)
+                }
+            }
+            else{
+                var user = {userId: req.userId}
+                update(user)
+            }
+async function update(userId){    //Updating to User Master    
+    await User.findOneAndUpdate(userId, {$set:req.body}, {new:true})
+    await User.findOneAndUpdate(userId, {$set:{updatedBy: name}}, {new:true})
     .then(users => res.status(200).send(users))
     .catch(err => res.status(404).send(err))
     //Updating to User Personal
-    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:req.body.personal}, {new:true})
-    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{updatedBy: name}}, {new:true})
+    await UserPersonal.findOneAndUpdate(userId, {$set:req.body.personal}, {new:true})
+    await UserPersonal.findOneAndUpdate(userId, {$set:{updatedBy: name}}, {new:true})
     //Updating to User Sports
-    await UserSports.findOneAndUpdate({userId:req.userId},{$set:req.body.sports}, {new:true})
-    await UserSports.findOneAndUpdate({userId:req.userId}, {$set:{updatedBy: name}}, {new:true})
+    await UserSports.findOneAndUpdate(userId,{$set:req.body.sports}, {new:true})
+    await UserSports.findOneAndUpdate(userId, {$set:{updatedBy: name}}, {new:true})}
 });
 }
 
 //Delete a User
 module.exports.deleteUserMaster = async (req, res, next) => {
+    var fName, lName, name, role;
     User.findOne({userId: req.userId},
         async  (err, user) => {
               if(!user)
               return res.status(404).json({status:false, message: "User is not found"});
-              else
-              var fName, lName, name;
+              else{
+              role = lodash.pick(user, 'role')
               fName = lodash.pick(user, 'firstName')
               lName = lodash.pick(user, 'lastName')
               name = fName.firstName + " " + lName.lastName;
-    User.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
-    .then(users => res.status(200).send(users))
-    .catch(err => res.status(404).send(err))
-    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
-    //.then(users => console.log(users))
-    await UserSports.findOneAndUpdate({userId:req.userId},{$set:{status:"INACTIVE", deletedBy: name, deletedAt:moment().format()}}, {new:true})
-    //.then(users => console.log(users))
-        });
+              }
+              if(role.role == 'ADMIN'){
+                if(req.query.userId == undefined){
+                    User.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
+                    .then(users => res.status(200).send(users))
+                    .catch(err => res.status(404).send(err))
+                    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
+                    await UserSports.findOneAndUpdate({userId:req.userId},{$set:{status:"INACTIVE", deletedBy: name, deletedAt:moment().format()}}, {new:true})
+                }
+                else{
+                    User.findOneAndUpdate({userId:req.query.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
+                    .then(users => res.status(200).send(users))
+                    .catch(err => res.status(404).send(err))
+                    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
+                    await UserSports.findOneAndUpdate({userId:req.userId},{$set:{status:"INACTIVE", deletedBy: name, deletedAt:moment().format()}}, {new:true})
+
+                }
+            }
+            else{
+                     User.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
+                    .then(users => res.status(200).send(users))
+                    .catch(err => res.status(404).send(err))
+                    await UserPersonal.findOneAndUpdate({userId:req.userId}, {$set:{status:"INACTIVE", deletedBy: name, deletedAt: moment().format()}}, {new:true})
+                    await UserSports.findOneAndUpdate({userId:req.userId},{$set:{status:"INACTIVE", deletedBy: name, deletedAt:moment().format()}}, {new:true})
+
+            }
+              
+                    });
 }
 
 //Authentication
@@ -226,11 +286,42 @@ module.exports.authenticate = (req, res, next) => {
 
 //Logged in user
 module.exports.userProfile = (req, res, next) => {
+    var role;
     User.findOne({userId: req.userId},
         (err, user) => {
             if(!user)
             return res.status(404).json({status:false, message: "User is not found"});
             else
-            return res.status(200).json({status:true, user: lodash.pick(user, ['userId', 'firstName', 'lastName', 'email'])});
+            role = lodash.pick(user, 'role')
+            
+            if(role.role == 'ADMIN'){
+                if(req.query.userId == undefined){
+                    User.findOne({userId: req.userId},
+                        (err, user) => {
+                            if(!user)
+                            return res.status(404).json({status:false, message: "User is not found"});
+                            else
+                            return res.status(200).json({status:true, user: lodash.pick(user, ['userId', 'firstName', 'lastName', 'email'])});
+                        });
+                }
+                else{
+                    User.findOne({userId: req.query.userId},
+                        (err, user) => {
+                            if(!user)
+                            return res.status(404).json({status:false, message: "User is not found"});
+                            else
+                            return res.status(200).json({status:true, user: lodash.pick(user, ['userId', 'firstName', 'lastName', 'email'])});
+                        });
+                }
+                }
+                else{
+                    User.findOne({userId: req.userId},
+                        (err, user) => {
+                            if(!user)
+                            return res.status(404).json({status:false, message: "User is not found"});
+                            else
+                            return res.status(200).json({status:true, user: lodash.pick(user, ['userId', 'firstName', 'lastName', 'email'])});
+                        });
+                }
         });
 }
