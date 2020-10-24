@@ -12,6 +12,7 @@ const lodash = require('lodash');
 
 // Create a User
 module.exports.registerUserMaster = async (req, res, next) => {
+    console.log('Entered into api')
     var fName = req.body.firstName;
     fName = fName.trim();
     fName = fName.charAt(0);
@@ -71,14 +72,14 @@ module.exports.registerUserMaster = async (req, res, next) => {
                 });
                 //Password Validation
                 if(pwd.length < 4){
-                    res.json("Password must be 4 character long")
+                    res.status(422).json("Password must be 4 character long")
                 }else{
                 user.save( function(err, doc) {
                     if(err){
-                        res.send(err)
+                        res.status(500).send(err)
                     }
                     else
-                    res.send(doc)
+                    res.status(200).send(doc)
                    // Create user in User Personal
                     const userPersonal = new UserPersonal(
                         {
