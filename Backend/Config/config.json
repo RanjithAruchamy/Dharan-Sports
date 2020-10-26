@@ -3,7 +3,12 @@
         "PORT": 3000,
         "MONGODB_URI": "mongodb://localhost/Sports",
         "JWT_SECRET": "SecretSports",
-        "JWT_EXP": "60m"
+        "JWT_EXP": "365d",
+        "domaiURL":"http://localhost:3000",
+        "mail":{
+            "user":"tuser0380@gmail.com",
+            "pwd": "Test@dmin"
+        }
     },
     "production":{
         "PORT": 3000,

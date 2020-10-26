@@ -6,7 +6,7 @@ const ctrlSport = require('../controllers/sports.controller');
 const ctrlForm = require('../controllers/forms.controller');
 const jwtHelper = require('../Config/JWThelper');
 
-router.post('/login', ctrlUser.authenticate);
+router.post('/generateToken', ctrlUser.authenticate);
 router.post('/register/user', ctrlUser.registerUserMaster);
 router.post('/register/sport',jwtHelper.verifyJwtToken, ctrlSport.registerSportsMaster);
 router.post('/register/form',jwtHelper.verifyJwtToken, ctrlForm.registerForm);
@@ -20,8 +20,10 @@ router.get('/forms/:formId',jwtHelper.verifyJwtToken, ctrlForm.getForm);
 router.put('/updateUser',jwtHelper.verifyJwtToken, ctrlUser.updateUserMaster);
 router.put('/sports/:sportId',jwtHelper.verifyJwtToken, ctrlSport.updateSport);
 router.put('/forms/:formId',jwtHelper.verifyJwtToken, ctrlForm.updateForm);
-router.delete('/deleteUser',jwtHelper.verifyJwtToken, ctrlUser.deleteUserMaster);
+router.put('/deleteUser',jwtHelper.verifyJwtToken, ctrlUser.deleteUserMaster);
+router.delete('/deleteUser/:userId',jwtHelper.verifyJwtToken, ctrlUser.deleteUser);
 router.delete('/sports/:sportId',jwtHelper.verifyJwtToken, ctrlSport.deleteSport);
 router.delete('/forms/:formId',jwtHelper.verifyJwtToken, ctrlForm.deleteForm);
+router.get('/confirmation', ctrlUser.confirmToken);
 
 module.exports = router;

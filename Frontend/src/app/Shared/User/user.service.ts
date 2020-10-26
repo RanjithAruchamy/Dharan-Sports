@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from './user.model';
-import { environment } from '../../environments/environment';
+import { Sport } from '../Sport/sport.model'
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,19 +14,13 @@ export class UserService {
     lastName: "",
     phoneNumber: "",
     email: "",
-    password: ""
+    password: "",
+
+
   }
   constructor(private http: HttpClient) { }
 
   postUser(user: User){
-    const payload = {
-      firstName:user.firstName,
-      lastName:user.lastName,
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      password: user.password
-    };
-    console.log('Entered to route'+payload)
-    return this.http.post(environment.apiBaseUrl+'/register/user', payload)
+    return this.http.post(environment.apiBaseUrl+'/register/user', user)
   }
 }

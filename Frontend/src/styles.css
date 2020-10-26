@@ -55,6 +55,20 @@ h2 {
   box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
   text-align: center;
 }
+select {
+  appearance: none;
+  outline: 0;
+  background:#f6f6f6;
+  width: 85%;
+  color: #0d0d0d;
+  padding: 15px 32px;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+  margin: 5px;
+  border: 2px solid #f6f6f6;
+  border-radius: 5px 5px 5px 5px;
+}
 
 #formFooter {
   background-color: #f6f6f6;

@@ -7,6 +7,7 @@ var userSchema = new mongoose.Schema(
     userId: { type: String, unique: true },
     status: { type: String, default: "ACTIVE" },
     role: { type: String, default: "USER" },
+    isVerified:{type:Boolean},
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phoneNumber: { type: Number, required: true },

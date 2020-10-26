@@ -7,13 +7,16 @@ const lodash = require('lodash');
 
 //Create a Sport
 module.exports.registerSportsMaster = (req, res, next) => {
-    var role;
+    var fName, lName, name, role;
     User.findOne({userId: req.userId},
         (err, user) => {
             if(!user)
             return res.status(404).json({status:false, message: "User is not found"});
             else
             role = lodash.pick(user, 'role')
+            fName = lodash.pick(user, 'firstName')
+            lName = lodash.pick(user, 'lastName')
+            name = fName.firstName + " " + lName.lastName;
             
             if(role.role == 'ADMIN'){
                 var sname = req.body.sportName;
@@ -28,7 +31,8 @@ module.exports.registerSportsMaster = (req, res, next) => {
                     {
                         'sportId': "OXF-D-S-" + fname + lname +"-" +count,
                         'sportName':req.body.sportName,
-                        'sportType':req.body.sportType
+                        'sportType':req.body.sportType,
+                        'createdBy': name
                     });
                     sports.save((err, doc) =>{
                         if(!err) res.status(201).send(doc)
@@ -87,17 +91,21 @@ module.exports.getSport = (req, res, next) => {
 }
 
 //Update a Sport
-module.exports.updateSport = (req, res, next) => {
-    var role;
+module.exports.updateSport = async (req, res, next) => {
+    var fName, lName, name, role;
     User.findOne({userId: req.userId},
-        (err, user) => {
+        async (err, user) => {
             if(!user)
             return res.status(404).json({status:false, message: "User is not found"});
             else
             role = lodash.pick(user, 'role')
+            fName = lodash.pick(user, 'firstName')
+            lName = lodash.pick(user, 'lastName')
+            name = fName.firstName + " " + lName.lastName;
             
             if(role.role == 'ADMIN'){
-                SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:req.body}, {new:true})
+                await SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:req.body}, {new:true})
+                await SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:{updatedBy: name}}, {new:true})
                 .then(sports => res.status(200).send(sports))
                 .catch(err => res.status(404).send(err))
                             }
@@ -110,16 +118,19 @@ module.exports.updateSport = (req, res, next) => {
 
 //Delete a Sport
 module.exports.deleteSport = (req, res, next) => {
-    var role;
+    var fName, lName, name, role;
     User.findOne({userId: req.userId},
         (err, user) => {
             if(!user)
             return res.status(404).json({status:false, message: "User is not found"});
             else
             role = lodash.pick(user, 'role')
+            fName = lodash.pick(user, 'firstName')
+            lName = lodash.pick(user, 'lastName')
+            name = fName.firstName + " " + lName.lastName;
             
             if(role.role == 'ADMIN'){
-                SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:{status:"INACTIVE", deletedAt: moment().format()}}, {new:true})
+                SportsMaster.findOneAndUpdate({sportId:req.params.sportId}, {$set:{status:"INACTIVE",deletedBy:name, deletedAt: moment().format()}}, {new:true})
                 .then(sports => res.status(200).send(sports))
                 .catch(err => res.status(404).send(err))
                 }
@@ -128,4 +139,10 @@ module.exports.deleteSport = (req, res, next) => {
                 }
         });
     
+}
+
+module.exports.test = (req, res, next) => {
+                sportsMaster.find()
+                .then(sports => res.status(200).send(sports))
+                .catch(err => res.status(404).send(err))
 }
