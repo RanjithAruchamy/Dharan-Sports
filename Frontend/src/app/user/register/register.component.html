@@ -12,12 +12,17 @@
     <label class="validation-message">This field is required.</label>
   </div>
 
-<div class="Sports" >
+<!-- <div class="Sports" >
 <select #sportId="ngModel" [(ngModel)] ="selected" name="sportId" required>
-  <option selected disabled>Choose your Game</option>
+  <option value="" disabled selected="selected">Choose your game</option>
   <option *ngFor="let sport of Sports" value="{{sport.sportId}}">{{sport.sportName}}</option>
 </select>
-</div>
+</div> -->
+
+<select class="sports" name="sportId" #sportId="ngModel" [(ngModel)] ="selected"  required>
+  <option [ngValue]="undefined" disabled >Choose your game</option>
+  <option *ngFor="let sport of Sports" value="{{sport.sportId}}">{{sport.sportName}}</option>
+</select>
 
   <input type="text" #phoneNumber="ngModel" [(ngModel)]="userService.selectedUser.phoneNumber"
     placeholder="Phone Number" name="phoneNumber" required
@@ -40,6 +45,8 @@
     <label *ngIf="password.errors.minlength" class="validation-message">Enter atleast 4 characters.</label>
   </div>
 
+  <div ><re-captcha style="display: inline-block;" (resolved) = 'resolved($event)' siteKey ="6LfMtNQZAAAAAOAlkcyc8nUMaKqcZR0j881ePAY7"></re-captcha>
+  </div>
   <input type="submit" value="Register">
 </form>
 

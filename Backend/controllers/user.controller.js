@@ -11,7 +11,8 @@ const passport = require('passport');
 const lodash = require('lodash');
 const nodemailer = require('nodemailer');
 const { getMaxListeners } = require('../models/userMaster');
-const config = require('../Config/config.json')
+const config = require('../Config/config.json');
+const axios = require('axios');
 //const User = mongoose.model('UserMaster');
 
 // Create a User
@@ -83,7 +84,7 @@ module.exports.registerUserMaster = async (req, res, next) => {
                     if(err){
                         res.status(500).send(err)
                     }
-                    else
+                    else{
                     res.status(200).send(doc)
                    // Create user in User Personal
                     const userPersonal = new UserPersonal(
@@ -141,6 +142,7 @@ module.exports.registerUserMaster = async (req, res, next) => {
                             .save()
                             .then(token => sendEmail(user.email, token.token))
                             })
+                        }
                             
                 })}
                 //Update userid in Sports Master
@@ -315,7 +317,7 @@ module.exports.deleteUser = async (req, res, next) => {
         }
                     });
 }
-//Confirm Token
+//Verify email using token
 module.exports.confirmToken = async (req, res, next) => {
     Token.findOne({token:req.query.token})
     .then(token => {
@@ -323,7 +325,8 @@ module.exports.confirmToken = async (req, res, next) => {
             User.findOneAndUpdate({userId:token.userId}, {$set:{isVerified:true}}, {new:true})
             .then(user => {
                 if(user.isVerified == true)
-                res.redirect('http://localhost:4200/login');
+                res.redirect(config.development.loginURL);
+                
             })
         }
 })
@@ -402,7 +405,7 @@ function sendEmail(email, token){
         from: config.development.mail.user,
         to:email,
         subject:"Account Verification",
-        text:"Hello, \n\n"+"Please verify your account by clicking the  below link: \n"+config.development.domaiURL+"\/api\/confirmation\/"+token + ".\n"
+        text:"Hello, \n\n"+"Please verify your account by clicking the  below link: \n"+config.development.domaiURL+"\/api\/confirmation\/?token="+token + ".\n"
     }
     transporter.sendMail(message, function(err, doc) {
         if (err){
@@ -413,4 +416,17 @@ function sendEmail(email, token){
         }
     });
     
+}
+
+//captcha verification
+module.exports.captchaVerify = (req, res, next) => {
+    var token = req.body.token;
+    var secret = config.development["captcha-secret"];
+    const url = " https://www.google.com/recaptcha/api/siteverify?secret="+secret+"&response="+token;
+    axios.post(url).then(response=>{
+        if(response.data.success)
+        res.status(200).json({response:"Captcha verification successful"})
+
+        res.status(401).send(response.data.success)
+    })
 }

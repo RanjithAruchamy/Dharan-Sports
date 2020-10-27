@@ -25,5 +25,6 @@ router.delete('/deleteUser/:userId',jwtHelper.verifyJwtToken, ctrlUser.deleteUse
 router.delete('/sports/:sportId',jwtHelper.verifyJwtToken, ctrlSport.deleteSport);
 router.delete('/forms/:formId',jwtHelper.verifyJwtToken, ctrlForm.deleteForm);
 router.get('/confirmation', ctrlUser.confirmToken);
+router.post('/verifyCaptcha', ctrlUser.captchaVerify);
 
 module.exports = router;

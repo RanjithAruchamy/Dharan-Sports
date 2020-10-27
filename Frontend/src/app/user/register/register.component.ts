@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { UserService } from '../../Shared/User/user.service';
 import { SportService } from '../../Shared/Sport/sport.service';
@@ -18,7 +18,9 @@ export class RegisterComponent implements OnInit {
   constructor(
     public userService: UserService,
     public sportService:SportService,
-    private http: HttpClient) { }
+    private http: HttpClient,
+    private _renderer: Renderer2
+    ) { }
     Sports: String;
     selected: null;
 
@@ -27,8 +29,13 @@ export class RegisterComponent implements OnInit {
       res => {
         this.Sports = res as String;
         console.log(this.Sports)
-      }
-    )
+      })
+
+      let script = this._renderer.createElement('script');
+      script.defer = true;
+      script.async = true;
+      script.src = 'https://www.google.com/recaptcha/api.js';
+      this._renderer.appendChild(document.body, script);
   }
 
   sportList(){
@@ -40,6 +47,10 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(form: NgForm){
+ var response = grecaptcha.getResponse();
+ if(!response)
+ alert('Please enable reCaptcha')
+ else{
     this.userService.postUser(form.value).subscribe(
       res => {
         this.showSuccessMessage = true;
@@ -54,6 +65,7 @@ export class RegisterComponent implements OnInit {
         this.showErrorMessage = 'Something went wrong . Please contact admin';
       }
     );
+ }
   }
 
   resetForm(form: NgForm){
@@ -66,5 +78,10 @@ export class RegisterComponent implements OnInit {
     };
     form.resetForm();
     this.showErrorMessage = '';
+    grecaptcha.reset();
+  }
+
+  resolved(token){
+    return this.userService.verifyToken(token)
   }
 }

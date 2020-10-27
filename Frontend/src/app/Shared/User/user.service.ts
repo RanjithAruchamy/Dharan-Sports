@@ -23,4 +23,8 @@ export class UserService {
   postUser(user: User){
     return this.http.post(environment.apiBaseUrl+'/register/user', user)
   }
+
+  verifyToken(token){
+    return this.http.post(environment.apiBaseUrl + '/verifyCaptcha', {token: token})
+  }
 }

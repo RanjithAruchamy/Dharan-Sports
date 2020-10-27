@@ -9,6 +9,7 @@
   "author": "Ranjith Aruchamy",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -20,6 +21,7 @@
     "nodemailer": "^6.4.14",
     "nodemon": "^2.0.6",
     "passport": "^0.4.1",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "request": "^2.88.2"
   }
 }
